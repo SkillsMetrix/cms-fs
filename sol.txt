@@ -1,13 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
 
 function UserRegistration(props) {
+    const [uname,setUname]= useState('')
+
+    const addUser=(e)=>{
+        e.preventDefault()
+   
+    }
   return (
     <div className="container">
       <div class="card">
         <div class="card-header">User Registration Form</div>
         <div class="card-body">
-          <form>
-            UserName: <input type="text" /> &nbsp;
+          <form onSubmit={addUser}>
+            UserName: <input type="text"  value={uname}/> &nbsp;
             Password: <input type="password" />&nbsp;
             Email: <input type="password" />&nbsp;
             City : <input type="text" />&nbsp;
