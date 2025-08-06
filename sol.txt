@@ -1,33 +1,28 @@
-import React, { useState } from "react";
+import React from 'react';
+import { Link } from 'react-router-dom';
 
-function UserRegistration(props) {
-  // array to store the userForm
-  const [users, setUsers] = useState([]);
-
-  const handleChange=(e) =>{
-    setUsers({...users,[e.target.name]:e.target.value})
-  }
-  const addUser = (e) => {
-    e.preventDefault()
-      localStorage.setItem("udata",JSON.stringify(users))
-        }
-  return (
-    <div className="container">
-      <div class="card">
-        <div class="card-header">User Registration Form</div>
-        <div class="card-body">
-          <form onSubmit={addUser}>
-            UserName: <input type="text"  name="uname"  onChange={handleChange}/> &nbsp; 
-            Password:<input type="password"  name="pass" onChange={handleChange}/>
-            &nbsp; Email: <input type="email"  name="email" onChange={handleChange}/>
-            &nbsp; City : <input type="text"  name="city"  onChange={handleChange}/>
-            &nbsp;
-            <button className="btn btn-primary">Register</button>
-          </form>
+function NavBar(props) {
+    return (
+        <div className='container'>
+           <ul className='nav'>
+            <li className='nav-item'>
+                <a className='nav-link' href='#'>
+                    <Link to="login">Login</Link>
+                </a>
+            </li>
+             <li className='nav-item'>
+                <a className='nav-link' href='#'>
+                    <Link to="login">Register</Link>
+                </a>
+            </li>
+             <li className='nav-item'>
+                <a className='nav-link' href='#'>
+                    <Link to="login">UserDetails</Link>
+                </a>
+            </li>
+           </ul>
         </div>
-      </div>
-    </div>
-  );
+    );
 }
 
-export default UserRegistration;
+export default NavBar;
