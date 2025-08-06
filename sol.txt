@@ -1,28 +1,72 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
 
-function NavBar(props) {
+
+import React, { useEffect, useState } from 'react';
+import axios from 'axios'
+import DataShow from '../components/DataShow';
+const URL='https://jsonplaceholder.typicode.com/users'
+function UserDetails(props) {
+const [users,setUsers]= useState([])
+    useEffect(()=>{
+        axios.get(URL)
+        .then((res) => res.data)
+        .then((data)=>{
+           
+            setUsers(data)
+            
+        })
+    },[])
+
     return (
-        <div className='container'>
-           <ul className='nav'>
-            <li className='nav-item'>
-                <a className='nav-link' href='#'>
-                    <Link to="login">Login</Link>
-                </a>
-            </li>
-             <li className='nav-item'>
-                <a className='nav-link' href='#'>
-                    <Link to="login">Register</Link>
-                </a>
-            </li>
-             <li className='nav-item'>
-                <a className='nav-link' href='#'>
-                    <Link to="login">UserDetails</Link>
-                </a>
-            </li>
-           </ul>
+        <div>
+           <DataShow data={users}/>
         </div>
     );
 }
 
-export default NavBar;
+export default UserDetails;
+
+
+
+
+----
+
+
+
+
+import React from 'react';
+
+function DataShow(props) {
+    return (
+        <div>
+           
+        <table class="table">
+           
+  <thead>
+    <tr>
+       
+      <th scope="col">UserName</th>
+      <th scope="col">Email</th>
+      <th scope="col">Username</th>
+    </tr>
+  </thead>
+  <tbody>
+     {props.data.map((user)=> (
+ <tr>
+     
+       
+      <td> {user.name}</td>
+      <td>{user.email} </td>
+      <td>{user.username} </td>
+     
+      
+      
+    </tr>   
+     ))}
+   
+    </tbody>
+    </table> 
+        </div>
+    );
+}
+
+export default DataShow;
