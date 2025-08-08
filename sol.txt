@@ -41,3 +41,46 @@ public class Flight {
                 flightNumber, origin, destination, departureTime, price);
     }
 }
+
+
+
+---
+package com.model;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
+public class Passenger {
+private String name;
+private String email;
+ 
+
+
+}
+
+---
+
+
+package com.service;
+
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+
+import com.model.Flight;
+
+public class BookingService {
+	private List<Flight> flights= new ArrayList<Flight>();
+	
+	public BookingService() {
+		 flights.add(new Flight("AI101", "Delhi", "Mumbai", LocalDateTime.now().plusHours(5), BigDecimal.valueOf(5500)));
+	}
+
+}
