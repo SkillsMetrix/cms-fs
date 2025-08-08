@@ -1,63 +1,29 @@
-import React from 'react';
-import { useSelector } from 'react-redux'
-function ProductComponent(props) {
-    // useSelector to consume the state
-    const products= useSelector((state)=> state.allProducts.products)
-    const renderList= products.map((propduct) => {
-        const {id,title,image,price,category}= propduct
-   return (
-        <div className='four wide column'>
-            <div className='ui link cards'>
-                <div className='card'>
-                    <div className='image'>
-                        <img src={image}/>
-                    </div>
-                    <div className='content'>
-
-                         <div className='header'>{}-{}</div>
-                    </div>
-                </div>
-            </div>
-            
-        </div>
-    );
-     })
-     return <>{renderList}</>
-}
-
-export default ProductComponent;
-
-
-
------
-
-
-
+import axios from 'axios';
 import React, { useEffect } from 'react';
-import axios from 'axios'
-import ProductComponent from './ProductComponent';
 import { useDispatch, useSelector } from 'react-redux';
-import { setProducts } from '../redux/actions/productAction';
+import { useParams } from 'react-router-dom';
+import { selectedProduct } from '../redux/actions/productAction';
 
-function ProductListing(props) {
-    const products= useSelector((state)=> state)
+function ProductDetails(props) {
+    const productNew= useSelector((state)=> state.product)
+    const {pid} =useParams()
     const dispatch=useDispatch()
+    
     const fetchProducts= async()=>{
+    const response= await axios.get(`https://fakestoreapi.com/products/${pid}`)
+      
+    dispatch(selectedProduct(response.data))
+      console.log(productNew);
 
-        const response= await axios.get('https://fakestoreapi.com/products')
-        dispatch(setProducts(response.data))
-        
-    }
+}
     useEffect(()=>{
 fetchProducts()
-    },[])
-    //console.log(products);
-    
-    return (
-        <div className= 'ui grid container'>
-           <ProductComponent/>
+    },[pid])
+return (
+        <div>
+            ProductDetails
         </div>
     );
 }
 
-export default ProductListing;
+export default ProductDetails;
