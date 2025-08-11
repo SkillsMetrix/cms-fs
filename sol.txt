@@ -1,84 +1,63 @@
 package com.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.service.annotation.GetExchange;
 
 import com.model.Users;
 import com.service.UserService;
 
- 
-@Controller
+@RestController
 @RequestMapping("/userapp")
 public class UserController {
-	
+
 	@Autowired
 	private UserService userService;
-	@GetMapping("/register")
-	public String loadUserForm(Model model) {
-		model.addAttribute("user",new Users());
-		return "userform";
-	}
+
 	@PostMapping("/register")
-	 
-	public String addUser(@ModelAttribute Users users,Model model) {
-		userService.addUser(users);
-		model.addAttribute("user",new Users());
-		return "login";
+
+	public ResponseEntity<Users> addUser(@RequestBody Users users) {
+
+		return ResponseEntity.ok(userService.addUser(users));
 	}
-	@GetMapping("/login")
-	public String loadLoginForm(Model model) {
-		model.addAttribute("user",new Users());
-		return "login";
+
+	@GetMapping("/loadall")
+
+	public ResponseEntity<List<Users>> loadall() {
+
+		return ResponseEntity.ok(userService.loadAll());
 	}
-	@PostMapping("/login")
-	 @ResponseBody
-	public String loginValidate(@ModelAttribute Users users) {
-	if(	userService.loginValidate(users)) {
-		return "Login Success....!";
+
+	@GetMapping("/loaduser/{email}")
+
+	public String loaduser(@PathVariable String email) {
+		if (userService.findUser(email)) {
+			return "user Found " + email;
+		}
+		return "user not found";
 	}
-		return "login Failed....!";
-	}
-}
 
-----
-
-
-package com.service;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import org.springframework.stereotype.Service;
-
-import com.model.Users;
-
-@Service
-public class UserServiceImpl implements UserService{
-
-	List<Users> userList= new ArrayList<Users>();
-	@Override
-	public Users addUser(Users users) {
-		 userList.add(users);
-		 System.out.println(userList);
-		 return users;
-	}
-	@Override
-	public boolean loginValidate(Users users) {
-		 boolean valid= userList.stream()
-				 .anyMatch(u-> u.getUserName().equalsIgnoreCase(users.getUserName()) 
-						 && u.getPassword().equals(users.getPassword()));
-		 if(valid) {
-			 return true;
-		 }
-		return false;
+	@DeleteMapping("/deleteuser/{email}")
+	@ResponseBody
+	public String loadall(@PathVariable String email) {
+		if (userService.deleteUser(email)) {
+			return "user deleted";
+		}
+		return "user not found";
 	}
 
 }
