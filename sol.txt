@@ -1,31 +1,3 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Document</title>
-</head>
-<body>
-
-	<h2>User Registration Form</h2>
-
-	<form th:action="@{/userapp/register}" method="post" th:object=${user}>
-		<input type="text" th:field="*{userID}" placeholder="UserID">
-		<input type="text" th:field="*{userName}" placeholder="UserName">
-		<input type="password" th:field="*{password}" placeholder="Password">
-		<input type="email" th:field="*{email}" placeholder="Email"> <input
-			type="text" th:field="*{city}" placeholder="City">
-		<button>Register User</button>
-
-	</form>
-
-</body>
-</html>
-
-------
-
-
-
 package com.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -55,15 +27,26 @@ public class UserController {
 		return "userform";
 	}
 	@PostMapping("/register")
-	@ResponseBody
-	public String addUser(@ModelAttribute Users users) {
+	 
+	public String addUser(@ModelAttribute Users users,Model model) {
 		userService.addUser(users);
-		return "userform";
+		model.addAttribute("user",new Users());
+		return "login";
+	}
+	@GetMapping("/login")
+	public String loadLoginForm(Model model) {
+		model.addAttribute("user",new Users());
+		return "login";
+	}
+	@PostMapping("/login")
+	 @ResponseBody
+	public String loginValidate(@ModelAttribute Users users) {
+	if(	userService.loginValidate(users)) {
+		return "Login Success....!";
+	}
+		return "login Failed....!";
 	}
 }
-
-
-
 
 ----
 
@@ -87,31 +70,15 @@ public class UserServiceImpl implements UserService{
 		 System.out.println(userList);
 		 return users;
 	}
-
-}
-
-
----
-
-
-package com.model;
-
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
-
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@ToString
-public class Users {
-	
-	private int userID;
-	private String userName;
-	private String password;
-	private String email;
-	private String city;
-	
+	@Override
+	public boolean loginValidate(Users users) {
+		 boolean valid= userList.stream()
+				 .anyMatch(u-> u.getUserName().equalsIgnoreCase(users.getUserName()) 
+						 && u.getPassword().equals(users.getPassword()));
+		 if(valid) {
+			 return true;
+		 }
+		return false;
+	}
 
 }
