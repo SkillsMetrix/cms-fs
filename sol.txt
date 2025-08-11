@@ -1,31 +1,117 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Document</title>
+</head>
+<body>
+
+	<h2>User Registration Form</h2>
+
+	<form th:action="@{/userapp/register}" method="post" th:object=${user}>
+		<input type="text" th:field="*{userID}" placeholder="UserID">
+		<input type="text" th:field="*{userName}" placeholder="UserName">
+		<input type="password" th:field="*{password}" placeholder="Password">
+		<input type="email" th:field="*{email}" placeholder="Email"> <input
+			type="text" th:field="*{city}" placeholder="City">
+		<button>Register User</button>
+
+	</form>
+
+</body>
+</html>
+
+------
+
+
+
+package com.controller;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.service.annotation.GetExchange;
+
+import com.model.Users;
+import com.service.UserService;
+
+ 
+@Controller
+@RequestMapping("/userapp")
+public class UserController {
+	
+	@Autowired
+	private UserService userService;
+	@GetMapping("/register")
+	public String loadUserForm(Model model) {
+		model.addAttribute("user",new Users());
+		return "userform";
+	}
+	@PostMapping("/register")
+	@ResponseBody
+	public String addUser(@ModelAttribute Users users) {
+		userService.addUser(users);
+		return "userform";
+	}
+}
+
+
+
+
+----
+
+
 package com.service;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
-import com.model.Flight;
+import org.springframework.stereotype.Service;
 
-public class BookingService {
-	private List<Flight> flights;
-	
-	public BookingService() {
-		 flights.add(new Flight("AI101", "Delhi", "Mumbai", LocalDateTime.now().plusHours(5), BigDecimal.valueOf(5500)));
-		 flights.add(new Flight("AI202", "Delhi", "Bangalore", LocalDateTime.now().plusHours(3), BigDecimal.valueOf(6500)));
-		 flights.add(new Flight("AI404", "Mumbai", "Chennai", LocalDateTime.now().plusHours(1), BigDecimal.valueOf(6000)));
-		 flights.add(new Flight("AI303", "Delhi", "Chennai", LocalDateTime.now().plusHours(6), BigDecimal.valueOf(4800)));
-		 
-		}
-	public List<Flight> searchFlight(String origin,String destination){
-		return flights.stream()
-				.filter(f -> f.getOrigin().equalsIgnoreCase(origin))
-				.filter(f -> f.getDestination().equalsIgnoreCase(destination))
-				.sorted(Comparator.comparing(Flight::getDepartureTime))
-				.collect(Collectors.toList());
+import com.model.Users;
+
+@Service
+public class UserServiceImpl implements UserService{
+
+	List<Users> userList= new ArrayList<Users>();
+	@Override
+	public Users addUser(Users users) {
+		 userList.add(users);
+		 System.out.println(userList);
+		 return users;
 	}
+
+}
+
+
+---
+
+
+package com.model;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
+public class Users {
+	
+	private int userID;
+	private String userName;
+	private String password;
+	private String email;
+	private String city;
+	
 
 }
