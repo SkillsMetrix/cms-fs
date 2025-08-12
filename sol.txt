@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -44,7 +45,7 @@ public class UserController {
 
 	@GetMapping("/loaduser/{email}")
 
-	public String loaduser(@PathVariable String email) {
+	public String loaduser(@PathVariable int email) {
 		if (userService.findUser(email)) {
 			return "user Found " + email;
 		}
@@ -53,11 +54,99 @@ public class UserController {
 
 	@DeleteMapping("/deleteuser/{email}")
 	@ResponseBody
-	public String loadall(@PathVariable String email) {
+	public String loadall(@PathVariable int email) {
 		if (userService.deleteUser(email)) {
 			return "user deleted";
 		}
 		return "user not found";
 	}
+
+	@PutMapping("/updateuser/{id}")
+	@ResponseBody
+	public String updateuser(@PathVariable int id,@RequestBody Users users) {
+		if (userService.updateUser(id,users)) {
+			return "user found and updated";
+		}
+		return "user not found";
+	}
+
+}
+
+
+
+-----
+
+
+package com.service;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+
+import com.model.Users;
+import com.repo.UserRepo;
+
+@Service
+public class UserServiceImpl implements UserService{
+	@Autowired
+	private UserRepo repo;
+
+	List<Users> userList= new ArrayList<Users>();
+	@Override
+	public Users addUser(Users users) {
+		 repo.save(users);
+		 return users;
+	}
+	@Override
+	public boolean loginValidate(Users users) {
+		 boolean valid= userList.stream()
+				 .anyMatch(u-> u.getUserName().equalsIgnoreCase(users.getUserName()) 
+						 && u.getPassword().equals(users.getPassword()));
+		 if(valid) {
+			 return true;
+		 }
+		return false;
+	}
+	@Override
+	public List<Users> loadAll() {
+		// TODO Auto-generated method stub
+		return (List<Users>) repo.findAll();
+	}
+	@Override
+	public boolean deleteUser(int empid) {
+		Optional<Users> found= repo.findById(empid);
+		if(found.isPresent()) {
+			repo.deleteById(empid);
+			return true;
+		}
+		return false;	 
+	}
+	@Override
+	public boolean findUser(int empid) {
+		Optional<Users> found= repo.findById(empid);
+		if(found.isPresent()) {
+			return true;
+		}
+		return false;
+	}
+	@Override
+	public boolean updateUser(int id, Users users) {
+		 
+		Optional<Users> found= repo.findById(id);
+		if(found.isPresent()) {
+			Users existingUser= found.get();
+			existingUser.setUserName(users.getUserName());
+			existingUser.setPassword(users.getPassword());
+			existingUser.setEmail(users.getEmail());
+			existingUser.setCity(users.getCity());
+			repo.save(existingUser);
+			return true;
+		}
+		return false;
+	}
+	
 
 }
