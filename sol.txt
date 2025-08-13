@@ -224,3 +224,68 @@ public class ShoppingCartResponse {
         }
     }
 }
+----
+
+package com.entity;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
+@Entity
+public class CartEntity {
+    
+    @Id
+    private Long userId;
+    private Long cartId;
+    private Double totalCosts;
+    private String products;
+    private Integer totalItems;
+
+    // Manual Builder
+    public static class Builder {
+        private Long userId;
+        private Long cartId;
+        private Double totalCosts;
+        private String products;
+        private Integer totalItems;
+
+        public Builder userId(Long userId) {
+            this.userId = userId;
+            return this;
+        }
+
+        public Builder cartId(Long cartId) {
+            this.cartId = cartId;
+            return this;
+        }
+
+        public Builder totalCosts(Double totalCosts) {
+            this.totalCosts = totalCosts;
+            return this;
+        }
+
+        public Builder products(String products) {
+            this.products = products;
+            return this;
+        }
+
+        public Builder totalItems(Integer totalItems) {
+            this.totalItems = totalItems;
+            return this;
+        }
+
+        public CartEntity build() {
+            return new CartEntity(userId, cartId, totalCosts, products, totalItems);
+        }
+    }
+}
