@@ -75,3 +75,59 @@ public class Product {
         }
     }
 }
+
+
+
+-------
+
+package com.model;
+
+public class ShoppingCartRequest {
+
+    private Long productId;
+    private Integer quantity;
+
+    // Private constructor to enforce use of Builder
+    private ShoppingCartRequest(Builder builder) {
+        this.productId = builder.productId;
+        this.quantity = builder.quantity;
+    }
+
+    // Getters
+    public Long getProductId() {
+        return productId;
+    }
+
+    public Integer getQuantity() {
+        return quantity;
+    }
+
+    @Override
+    public String toString() {
+        return "ShoppingCartRequest{" +
+               "productId=" + productId +
+               ", quantity=" + quantity +
+               '}';
+    }
+
+    // Static Builder class
+    public static class Builder {
+        private Long productId;
+        private Integer quantity;
+
+        public Builder productId(Long productId) {
+            this.productId = productId;
+            return this;
+        }
+
+        public Builder quantity(Integer quantity) {
+            this.quantity = quantity;
+            return this;
+        }
+
+        public ShoppingCartRequest build() {
+            return new ShoppingCartRequest(this);
+        }
+    }
+}
+
