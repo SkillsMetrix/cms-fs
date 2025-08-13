@@ -1,291 +1,39 @@
-package com.model;
+package com.service;
 
-public class Product {
-
-    private Long productId;
-    private String productName;
-    private Integer quantity;
-    private Double amount;
-
-    // Private constructor to force object creation via builder
-    private Product(Builder builder) {
-        this.productId = builder.productId;
-        this.productName = builder.productName;
-        this.quantity = builder.quantity;
-        this.amount = builder.amount;
-    }
-
-    // Getters
-    public Long getProductId() {
-        return productId;
-    }
-
-    public String getProductName() {
-        return productName;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    public Double getAmount() {
-        return amount;
-    }
-
-    // toString
-    @Override
-    public String toString() {
-        return "Product{" +
-               "productId=" + productId +
-               ", productName='" + productName + '\'' +
-               ", quantity=" + quantity +
-               ", amount=" + amount +
-               '}';
-    }
-
-    // Static inner Builder class
-    public static class Builder {
-        private Long productId;
-        private String productName;
-        private Integer quantity;
-        private Double amount;
-
-        public Builder productId(Long productId) {
-            this.productId = productId;
-            return this;
-        }
-
-        public Builder productName(String productName) {
-            this.productName = productName;
-            return this;
-        }
-
-        public Builder quantity(Integer quantity) {
-            this.quantity = quantity;
-            return this;
-        }
-
-        public Builder amount(Double amount) {
-            this.amount = amount;
-            return this;
-        }
-
-        public Product build() {
-            return new Product(this);
-        }
-    }
-}
-
-
-
--------
-
-package com.model;
-
-public class ShoppingCartRequest {
-
-    private Long productId;
-    private Integer quantity;
-
-    // Private constructor to enforce use of Builder
-    private ShoppingCartRequest(Builder builder) {
-        this.productId = builder.productId;
-        this.quantity = builder.quantity;
-    }
-
-    // Getters
-    public Long getProductId() {
-        return productId;
-    }
-
-    public Integer getQuantity() {
-        return quantity;
-    }
-
-    @Override
-    public String toString() {
-        return "ShoppingCartRequest{" +
-               "productId=" + productId +
-               ", quantity=" + quantity +
-               '}';
-    }
-
-    // Static Builder class
-    public static class Builder {
-        private Long productId;
-        private Integer quantity;
-
-        public Builder productId(Long productId) {
-            this.productId = productId;
-            return this;
-        }
-
-        public Builder quantity(Integer quantity) {
-            this.quantity = quantity;
-            return this;
-        }
-
-        public ShoppingCartRequest build() {
-            return new ShoppingCartRequest(this);
-        }
-    }
-}
-
-------
-
-package com.model;
-
+import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
-public class ShoppingCartResponse {
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.web.client.RestTemplate;
 
-    private Long userId;
-    private Long cartId;
-    private Double totalCosts;
-    private Integer totalItems;
-    private List<Product> products;
+import com.entity.Product;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.model.ShoppingCartRequest;
+import com.model.ShoppingCartResponse;
+import com.repo.ShopRepo;
+@Service
+public class ShoppingService {
+	@Autowired
+	private ShopRepo repo;
+	@Autowired
+	private RestTemplate template;
+	
+	public ShoppingCartResponse processAndSend(Long userId, List<ShoppingCartRequest> shoppingCartRequests) {
+		
+		ObjectMapper mapper= new ObjectMapper();
+		String productServiceURL="http://localhost:8090/products/getproduct/"+
+		shoppingCartRequests.stream()
+		.map(e -> String.valueOf(e.getProductId()))
+		.collect(Collectors.joining(","));
+		Product[] productArray=template.getForObject(productServiceURL, Product[].class);
+		List<Product> psl= Arrays.asList(productArray);
+		System.out.println(psl);
+		return null;
+		
+		
+	}
 
-    // Private constructor for Builder
-    private ShoppingCartResponse(Builder builder) {
-        this.userId = builder.userId;
-        this.cartId = builder.cartId;
-        this.totalCosts = builder.totalCosts;
-        this.totalItems = builder.totalItems;
-        this.products = builder.products;
-    }
-
-    // Getters
-    public Long getUserId() {
-        return userId;
-    }
-
-    public Long getCartId() {
-        return cartId;
-    }
-
-    public Double getTotalCosts() {
-        return totalCosts;
-    }
-
-    public Integer getTotalItems() {
-        return totalItems;
-    }
-
-    public List<Product> getProducts() {
-        return products;
-    }
-
-    @Override
-    public String toString() {
-        return "ShoppingCartResponse{" +
-                "userId=" + userId +
-                ", cartId=" + cartId +
-                ", totalCosts=" + totalCosts +
-                ", totalItems=" + totalItems +
-                ", products=" + products +
-                '}';
-    }
-
-    // Static Builder class
-    public static class Builder {
-        private Long userId;
-        private Long cartId;
-        private Double totalCosts;
-        private Integer totalItems;
-        private List<Product> products;
-
-        public Builder userId(Long userId) {
-            this.userId = userId;
-            return this;
-        }
-
-        public Builder cartId(Long cartId) {
-            this.cartId = cartId;
-            return this;
-        }
-
-        public Builder totalCosts(Double totalCosts) {
-            this.totalCosts = totalCosts;
-            return this;
-        }
-
-        public Builder totalItems(Integer totalItems) {
-            this.totalItems = totalItems;
-            return this;
-        }
-
-        public Builder products(List<Product> products) {
-            this.products = products;
-            return this;
-        }
-
-        public ShoppingCartResponse build() {
-            return new ShoppingCartResponse(this);
-        }
-    }
-}
-----
-
-package com.entity;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
-
-@Data
-@AllArgsConstructor
-@NoArgsConstructor
-@ToString
-@Entity
-public class CartEntity {
-    
-    @Id
-    private Long userId;
-    private Long cartId;
-    private Double totalCosts;
-    private String products;
-    private Integer totalItems;
-
-    // Manual Builder
-    public static class Builder {
-        private Long userId;
-        private Long cartId;
-        private Double totalCosts;
-        private String products;
-        private Integer totalItems;
-
-        public Builder userId(Long userId) {
-            this.userId = userId;
-            return this;
-        }
-
-        public Builder cartId(Long cartId) {
-            this.cartId = cartId;
-            return this;
-        }
-
-        public Builder totalCosts(Double totalCosts) {
-            this.totalCosts = totalCosts;
-            return this;
-        }
-
-        public Builder products(String products) {
-            this.products = products;
-            return this;
-        }
-
-        public Builder totalItems(Integer totalItems) {
-            this.totalItems = totalItems;
-            return this;
-        }
-
-        public CartEntity build() {
-            return new CartEntity(userId, cartId, totalCosts, products, totalItems);
-        }
-    }
+ 	 
 }
