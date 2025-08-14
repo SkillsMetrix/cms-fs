@@ -1,11 +1,89 @@
-server:
-  port: 8888
-spring:
-  application:
-    name: gateway
+package com.example.productMS;
 
- 
-eureka:
-  client:
-    service-url:
-      defaultZone: http://localhost:7777/eureka
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.NoOpPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
+import org.springframework.security.web.SecurityFilterChain;
+
+@Configuration
+@EnableWebSecurity
+public class SecurityConfig {
+	@Bean
+	public UserDetailsService detailsService() {
+		return new InMemoryUserDetailsManager(
+				User.withUsername("admin").password("admin123").roles("ADMIN").build(),
+				User.withUsername("user").password("user123").roles("USER").build()
+				);
+	}
+	@Bean
+	public SecurityFilterChain securityFilterChain(HttpSecurity http)throws Exception{
+		http.csrf(csrf -> csrf.disable())
+		.authorizeHttpRequests(auth -> auth.requestMatchers("/h2-console").permitAll().anyRequest()
+				.authenticated())
+		.headers(headers -> headers.frameOptions().disable())
+		.httpBasic(Customizer.withDefaults());
+		return http.build();
+	}
+	@Bean
+	public static PasswordEncoder encoder() {
+		return NoOpPasswordEncoder.getInstance();
+	}
+
+}
+
+
+
+
+
+---
+
+package com.controller;
+
+import java.util.List;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.cloud.context.config.annotation.RefreshScope;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import com.entity.Product;
+import com.service.ProductService;
+
+@RestController
+@RequestMapping("/products")
+@RefreshScope
+public class ProductController {
+	@Autowired
+	private ProductService service;
+	@Value("${product.message}")
+	private String message;
+
+	@PostMapping("/addproduct")
+	@PreAuthorize("hasRole('ADMIN')")
+	public List<Product> addProduct(@RequestBody List<Product> products) {
+		System.out.println("Message from server " +message);
+		return service.addProduct(products);
+	}
+
+	@GetMapping("/getproducts")
+	public List<Product> loadProducts() {
+		return service.getProducts();
+	}
+	@GetMapping("/getproduct/{plist}")
+	public List<Product> getById(@PathVariable List<Long> plist){
+		return service.getProductsByIds(plist);
+	}
+}
